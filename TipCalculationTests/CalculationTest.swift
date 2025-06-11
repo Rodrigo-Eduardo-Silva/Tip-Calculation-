@@ -4,65 +4,75 @@ import os
 @testable import TipCalculation
 
 final class CalculationTest: XCTestCase {
+    var viewModel = TipCalculationViewModel()
 
     func testSucessfulTipCalculation() {
         // Arrange
-        let enteredAmount = 100.00
-        let tipSliderValue = 25.00
-        let calculation = TipCalculationViewModel()
+        viewModel.enteredAmount = "100.00"
+        viewModel.tipSlider = 25.00
         // Act
 
-        let tip = calculation.CalculateTip(of: enteredAmount, with: tipSliderValue)
+        viewModel.calculate()
 
         // Assert
-        XCTAssertEqual(tip, 25.00)
+        XCTAssertEqual(viewModel.tipAmount, 25.00)
+        XCTAssertEqual(viewModel.totalAmount, 125.00)
 
     }
 
-    func testNegativeEnterAumountTipCalculation() {
+    func testZeroAmount() {
         // Arrange
-        let enteredAmount = -100.00
-        let tipSliderValue = 25.00
-        let calculation = TipCalculationViewModel()
-        // Act
+        viewModel.enteredAmount = "0"
+        viewModel.tipSlider = 15
 
-        let tip = calculation.CalculateTip(of: enteredAmount, with: tipSliderValue)
+        // Quando
+        viewModel.calculate()
 
-        // Assert
-        XCTAssertNil(tip)
-
+        // Então
+        XCTAssertEqual(viewModel.tipAmount, 0)
+        XCTAssertEqual(viewModel.totalAmount, 0)
     }
 
-    func testCalculateTip_WithZeroAmount() {
-           // Dado
-           let enteredAmount = 0.0
-           let tipSliderValue = 15.0
-           let calculation = TipCalculationViewModel()
-           // Quando
-           let tip = calculation.CalculateTip(of: enteredAmount, with: tipSliderValue)
+    func testNegativeAmount() {
+        // Dado
+        viewModel.enteredAmount = "-50"
+        viewModel.tipSlider = 10
 
-           // Então
-           XCTAssertEqual(tip, 0.0)
-       }
+        // Quando
+        viewModel.calculate()
 
-    func testOnChange_WithValidEntry() {
-            // Dado
-            let enteredAmount = "aaa"
-            let tipSlider = 15.0
-            var tipAmount: Double = 0
-            var totalAmount: Double = 0
-            let calculation = TipCalculationViewModel()
+        // Então
+        XCTAssertEqual(viewModel.tipAmount, 0)
+        XCTAssertEqual(viewModel.totalAmount, 0)
+    }
 
-            // Simulando a lógica do onChange
-            if let amount = Double(enteredAmount),
-               let tip = calculation.CalculateTip(of: amount, with: tipSlider) {
-                tipAmount = tip
-                totalAmount = amount + tip
-            }
+    func testInvalidInput() {
+        // Dado
+        viewModel.enteredAmount = "invalid"
+        viewModel.tipSlider = 15
 
-            // Então
-            XCTAssertEqual(tipAmount, 15.0)
-            XCTAssertEqual(totalAmount, 115.0)
-        }
+        // Quando
+        viewModel.calculate()
+
+        // Então
+        XCTAssertEqual(viewModel.tipAmount, 0)
+        XCTAssertEqual(viewModel.totalAmount, 0)
+    }
+
+    func testEdgeCases() {
+        // Teste com 0% de gorjeta
+        viewModel.enteredAmount = "100"
+        viewModel.tipSlider = 0
+        viewModel.calculate()
+        XCTAssertEqual(viewModel.tipAmount, 0)
+        XCTAssertEqual(viewModel.totalAmount, 100)
+
+        // Teste com 100% de gorjeta
+        viewModel.enteredAmount = "50"
+        viewModel.tipSlider = 100
+        viewModel.calculate()
+        XCTAssertEqual(viewModel.tipAmount, 50)
+        XCTAssertEqual(viewModel.totalAmount, 100)
+    }
 
 }
