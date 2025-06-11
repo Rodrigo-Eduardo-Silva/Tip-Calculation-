@@ -21,10 +21,7 @@ struct ContentView: View {
 
             Slider(value:$tipSlider, in: 0...100, step: 1)
                 .onChange(of: tipSlider) {
-                    guard let amount = Double(enteredAmount) else {
-                        print("invalid Entry")
-                        return
-                    }
+                    guard let amount = Double(enteredAmount) else { return }
 
                     guard let tip = viewModel.CalculateTip(of: amount, with: tipSlider) else {
                         return
